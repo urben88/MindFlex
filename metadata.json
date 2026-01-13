@@ -1,0 +1,5 @@
+{
+  "name": "MindFlex: Entrenamiento Cognitivo",
+  "description": "Una aplicación SPA offline-first para el entrenamiento de la memoria y la agilidad cognitiva. Incluye juegos, ejercicios prácticos y recomendaciones adaptativas.",
+  "requestFramePermissions": []
+}
