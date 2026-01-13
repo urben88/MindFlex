@@ -3,13 +3,13 @@ import { ExerciseTemplate, StoryGameData, ExerciseContent } from "../types";
 
 const API_KEY = process.env.API_KEY || ''; // Injected by environment
 
-// Simple in-memory cache to save tokens during a session
+// Simple in-memory cache to save tokens during a session for non-persistent items
 const memoryCache: {
     exercises: Map<string, ExerciseContent>;
     stories: Map<string, StoryGameData>;
 } = {
     exercises: new Map(),
-    stories: new Map()
+    stories: new Map(),
 };
 
 export const aiService = {
@@ -77,9 +77,6 @@ export const aiService = {
     // 1. Check Cache
     const cacheKey = `story_${difficulty}`;
     if (memoryCache.stories.has(cacheKey)) {
-         // Return cached story occasionally to save tokens, 
-         // but maybe we want new stories? For now, let's cache per session.
-         // To vary it, we could have an array in cache, but simple map is fine for "min token usage" request.
          console.log(`[Cache Hit] Story: ${difficulty}`);
          return memoryCache.stories.get(cacheKey)!;
     }
@@ -126,8 +123,6 @@ export const aiService = {
   },
 
   getFeedback: async (gameName: string, score: number, accuracy: number): Promise<string> => {
-    // Feedback is cheap, but we can also limit it if strictly needed. 
-    // For now, let's allow it as it's personalized per run.
     if (!API_KEY) return `¡Bien hecho! Precisión: ${Math.round(accuracy * 100)}%.`;
 
     try {

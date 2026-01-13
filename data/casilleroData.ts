@@ -3,6 +3,7 @@ export interface PegItem {
   number: number;
   word: string;
   association?: string;
+  imageUrl?: string;
 }
 
 export const PHONETIC_RULES = [
@@ -18,21 +19,70 @@ export const PHONETIC_RULES = [
   { digit: 0, letter: 'R', example: 'Aro, Rey' },
 ];
 
+// URLs estáticas actualizadas y verificadas
 export const CASILLERO_BASE: PegItem[] = [
-  { number: 1, word: 'Té', association: 'Visualiza una taza de té humeante.' },
-  { number: 2, word: 'Ñu', association: 'Un ñu corriendo por la sabana.' },
-  { number: 3, word: 'Humo', association: 'Una densa nube de humo.' },
-  { number: 4, word: 'Oca', association: 'Una oca blanca graznando.' },
-  { number: 5, word: 'Ola', association: 'Una ola gigante de mar.' },
-  { number: 6, word: 'Oso', association: 'Un oso pardo de pie.' },
-  { number: 7, word: 'Ufo', association: 'Un platillo volante (OVNI).' },
-  { number: 8, word: 'Hacha', association: 'Un hacha cortando madera.' },
-  { number: 9, word: 'Ave', association: 'Un ave volando alto.' },
-  { number: 0, word: 'Aro', association: 'Un aro de hula-hoop girando.' },
+  { 
+    number: 1, 
+    word: 'Té', 
+    association: 'Visualiza una taza de té humeante.',
+    imageUrl: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=800&q=80' 
+  },
+  { 
+    number: 2, 
+    word: 'Ñu', 
+    association: 'Un ñu corriendo por la sabana.',
+    imageUrl: 'https://images.unsplash.com/photo-1535338454770-8be927b5a00b?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    number: 3, 
+    word: 'Humo', 
+    association: 'Una densa nube de humo.',
+    imageUrl: 'https://images.unsplash.com/photo-1524629739564-998813f5dc62?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    number: 4, 
+    word: 'Oca', 
+    association: 'Una oca blanca graznando.',
+    imageUrl: 'https://images.unsplash.com/photo-1506509939521-4f16b2053186?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    number: 5, 
+    word: 'Ola', 
+    association: 'Una ola gigante de mar rompiendo.',
+    imageUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    number: 6, 
+    word: 'Oso', 
+    association: 'Un oso pardo de pie.',
+    imageUrl: 'https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    number: 7, 
+    word: 'Ufo', 
+    association: 'Un objeto volador misterioso con luces.',
+    imageUrl: 'https://images.unsplash.com/photo-1520034475321-cbe63696469a?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    number: 8, 
+    word: 'Hacha', 
+    association: 'Un hacha de leñador clavada en madera.',
+    imageUrl: 'https://images.unsplash.com/photo-1615557760920-56c24d193d5f?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    number: 9, 
+    word: 'Ave', 
+    association: 'Un ave rapaz en pleno vuelo.',
+    imageUrl: 'https://images.unsplash.com/photo-1444464666168-49d633b86797?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    number: 0, 
+    word: 'Aro', 
+    association: 'Un aro de luz brillante o anillo.',
+    imageUrl: 'https://images.unsplash.com/photo-1533596245281-2856286f9011?auto=format&fit=crop&w=800&q=80'
+  },
 ];
 
-// A standard list following Campayo's phonetics (Consonants + Vowels)
-// 1=T, 2=N, 3=M, 4=C, 5=L, 6=S, 7=F, 8=CH/G, 9=V/B, 0=R
 export const CASILLERO_FULL: PegItem[] = [
   ...CASILLERO_BASE,
   { number: 10, word: 'Toro' }, { number: 11, word: 'Teta' }, { number: 12, word: 'Tina' }, { number: 13, word: 'Átomo' }, { number: 14, word: 'Taco' },
@@ -53,5 +103,5 @@ export const CASILLERO_FULL: PegItem[] = [
   { number: 85, word: 'Gol' }, { number: 86, word: 'Gas' }, { number: 87, word: 'Jefe' }, { number: 88, word: 'Chicha' }, { number: 89, word: 'Chivo' },
   { number: 90, word: 'Bar' }, { number: 91, word: 'Bota' }, { number: 92, word: 'Vino' }, { number: 93, word: 'Bomba' }, { number: 94, word: 'Vaca' },
   { number: 95, word: 'Vela' }, { number: 96, word: 'Vaso' }, { number: 97, word: 'Bofetá' }, { number: 98, word: 'Bache' }, { number: 99, word: 'Bebé' },
-  { number: 100, word: 'Torero' } // Bonus
+  { number: 100, word: 'Torero' }
 ];
