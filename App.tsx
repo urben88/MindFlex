@@ -1,10 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import { useStore } from './store/useStore';
 import { Layout } from './components/Layout';
 import { Home } from './views/Home';
 import { GuideDetailsView } from './views/GuideDetailsView';
-// Game Imports
 import { NBackGame } from './games/NBack';
 import { StroopGame } from './games/Stroop';
 import { SequenceGame } from './games/Sequence';
@@ -13,20 +11,16 @@ import { SnapshotGame } from './games/Snapshot';
 import { AudioNBackGame } from './games/AudioNBack';
 import { EchoSequenceGame } from './games/EchoSequence';
 import { StoryListenerGame } from './games/StoryListener';
-
-// New Interactive Exercise Component
 import { ExerciseSession } from './components/ExerciseSession';
 import { CasilleroView } from './views/CasilleroView';
-
 import { DifficultySelector } from './components/DifficultySelector';
 import { GameSummary } from './components/GameSummary';
 import { ActiveGameLayout } from './components/ActiveGameLayout';
 import { GAME_DEFINITIONS, EXERCISE_TEMPLATES, DIFFICULTY_CONFIGS } from './constants';
-import { GameId, DifficultyLevel, MemoryConfig, SnapshotConfig, AudioNBackConfig, EchoSequenceConfig, StoryListenerConfig } from './types';
+import { GameId, DifficultyLevel, AudioNBackConfig, EchoSequenceConfig, MemoryConfig, SnapshotConfig, StoryListenerConfig } from './types';
 import { ArrowRight, Filter, SortAsc, Info, Volume2 } from 'lucide-react';
 import { GameIcon } from './components/GameIcon';
 
-// Placeholder components for other games
 const PlaceholderGame: React.FC<{ name: string; difficulty: DifficultyLevel }> = ({ name, difficulty }) => {
     const { completeGame } = useStore();
     return (
@@ -37,7 +31,7 @@ const PlaceholderGame: React.FC<{ name: string; difficulty: DifficultyLevel }> =
             <button 
                 className="bg-primary text-white px-8 py-3 rounded-xl font-bold"
                 onClick={() => completeGame({
-                    gameId: 'snapshot', // Fallback ID
+                    gameId: 'snapshot', 
                     score: Math.floor(Math.random() * 1000),
                     accuracy: 0.85,
                     maxLevel: 3,
@@ -106,7 +100,7 @@ const ExerciseList: React.FC = () => {
             const levels = { 'Fácil': 1, 'Medio': 2, 'Difícil': 3 };
             return levels[a.difficulty] - levels[b.difficulty];
         }
-        return 0; // Default order
+        return 0; 
     });
     
     return (
@@ -116,13 +110,11 @@ const ExerciseList: React.FC = () => {
                 <button 
                     onClick={() => setSort(s => s === 'default' ? 'difficulty' : 'default')}
                     className={`p-2 rounded-lg transition-colors ${sort === 'difficulty' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:bg-slate-100'}`}
-                    title="Ordenar por dificultad"
                 >
                     <SortAsc size={20} />
                 </button>
             </div>
 
-            {/* Filter Tabs */}
             <div className="flex overflow-x-auto gap-2 px-2 pb-2 hide-scrollbar">
                 {categories.map(cat => (
                     <button
@@ -254,7 +246,6 @@ const ActiveGameWrapper: React.FC = () => {
     const { activeGameId, navigate } = useStore();
     const [difficulty, setDifficulty] = useState<DifficultyLevel | null>(null);
 
-    // Reset difficulty when game changes
     useEffect(() => {
         setDifficulty(null);
     }, [activeGameId]);
@@ -299,6 +290,7 @@ export default function App() {
   const { view, init } = useStore();
 
   useEffect(() => {
+    console.log('MindFlex: Iniciando aplicación...');
     init();
   }, []);
 
@@ -313,7 +305,7 @@ export default function App() {
       case 'active_exercise': return <ExerciseSession />;
       case 'game_summary': return <GameSummary />;
       case 'guide_details': return <GuideDetailsView />;
-      case 'casillero': return <CasilleroView />; // Add Casillero route
+      case 'casillero': return <CasilleroView />;
       default: return <Home />;
     }
   };
