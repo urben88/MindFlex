@@ -145,6 +145,8 @@ const BasicsSection: React.FC = () => {
                 <div className="grid grid-cols-1 gap-6">
                     {CASILLERO_BASE.map((peg) => {
                         const Icon = PEG_ICONS[peg.number] || Circle;
+                        // For specific items like Hacha or Oca, contain fit is better to see the whole object
+                        const useContain = [0, 1, 2, 4, 7, 8].includes(peg.number);
 
                         return (
                             <div key={peg.number} className="bg-white rounded-3xl border border-slate-200 shadow-lg overflow-hidden relative group">
@@ -163,13 +165,13 @@ const BasicsSection: React.FC = () => {
                                 </div>
                                 
                                 {/* Image Area */}
-                                <div className="w-full h-56 bg-slate-50 relative flex items-center justify-center overflow-hidden">
+                                <div className="w-full h-64 bg-white relative flex items-center justify-center overflow-hidden">
                                     {peg.imageUrl ? (
                                         <img 
                                             src={peg.imageUrl} 
                                             alt={peg.word} 
                                             loading="lazy"
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                            className={`w-full h-full transition-transform duration-700 group-hover:scale-105 ${useContain ? 'object-contain p-4' : 'object-cover'}`}
                                         />
                                     ) : (
                                         <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
@@ -177,8 +179,10 @@ const BasicsSection: React.FC = () => {
                                         </div>
                                     )}
                                     
-                                    {/* Overlay Gradient */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+                                    {/* Overlay Gradient for scenery style images */}
+                                    {!useContain && (
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+                                    )}
                                 </div>
                             </div>
                         );

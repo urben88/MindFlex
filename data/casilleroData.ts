@@ -19,7 +19,7 @@ export const PHONETIC_RULES = [
   { digit: 0, letter: 'R', example: 'Aro, Rey' },
 ];
 
-// URLs estáticas actualizadas y verificadas
+// URLs actualizadas según petición del usuario
 export const CASILLERO_BASE: PegItem[] = [
   { 
     number: 1, 
@@ -37,13 +37,13 @@ export const CASILLERO_BASE: PegItem[] = [
     number: 3, 
     word: 'Humo', 
     association: 'Una densa nube de humo.',
-    imageUrl: 'https://images.unsplash.com/photo-1524629739564-998813f5dc62?auto=format&fit=crop&w=800&q=80'
+    imageUrl: 'https://services.meteored.com/img/article/el-viaje-del-humo-180891-1_1280.jpg'
   },
   { 
     number: 4, 
     word: 'Oca', 
     association: 'Una oca blanca graznando.',
-    imageUrl: 'https://images.unsplash.com/photo-1506509939521-4f16b2053186?auto=format&fit=crop&w=800&q=80'
+    imageUrl: 'https://m.media-amazon.com/images/I/81SM6k+7epL.png'
   },
   { 
     number: 5, 
@@ -67,7 +67,7 @@ export const CASILLERO_BASE: PegItem[] = [
     number: 8, 
     word: 'Hacha', 
     association: 'Un hacha de leñador clavada en madera.',
-    imageUrl: 'https://images.unsplash.com/photo-1615557760920-56c24d193d5f?auto=format&fit=crop&w=800&q=80'
+    imageUrl: 'https://i.etsystatic.com/13677386/r/il/86f301/5036799324/il_570xN.5036799324_e7z6.jpg'
   },
   { 
     number: 9, 
@@ -79,7 +79,7 @@ export const CASILLERO_BASE: PegItem[] = [
     number: 0, 
     word: 'Aro', 
     association: 'Un aro de luz brillante o anillo.',
-    imageUrl: 'https://images.unsplash.com/photo-1533596245281-2856286f9011?auto=format&fit=crop&w=800&q=80'
+    imageUrl: 'https://www.visualizeledshow.com/images/cerchio.jpg'
   },
 ];
 
