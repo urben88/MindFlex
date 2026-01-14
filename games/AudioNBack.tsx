@@ -25,15 +25,13 @@ export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
 
   const startTimeRef = useRef(Date.now());
-  // Fix: Initialize timerRef with undefined to fix 'Expected 1 arguments' error
   const timerRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    // Generate full sequence upfront
     const seq = [];
     for (let i = 0; i < TOTAL_TURNS; i++) {
       if (i >= N && Math.random() < 0.35) {
-        seq.push(seq[i - N]); // Force match
+        seq.push(seq[i - N]);
       } else {
         seq.push(LETTERS[Math.floor(Math.random() * LETTERS.length)]);
       }
@@ -84,7 +82,7 @@ export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
     if (currentIndex < N) return;
     
     const isMatch = sequence[currentIndex] === sequence[currentIndex - N];
-    const points = Math.round(150 * multiplier); // Higher points for audio difficulty
+    const points = Math.round(150 * multiplier);
 
     if (isMatch) {
       setScore(s => s + points);
@@ -99,20 +97,20 @@ export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
 
   if (!isPlaying) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center space-y-8">
-        <div className="bg-indigo-50 p-6 rounded-full">
-           <Volume2 size={48} className="text-primary" />
+      <div className="flex flex-col items-center justify-center h-full p-8 text-center space-y-8 bg-white dark:bg-black transition-colors">
+        <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-full">
+           <Volume2 size={48} className="text-primary dark:text-indigo-400" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold mb-2">Entrenamiento Auditivo</h2>
-          <p className="text-slate-500">
+          <h2 className="text-2xl font-bold mb-2 text-slate-800 dark:text-white">Entrenamiento Auditivo</h2>
+          <p className="text-slate-500 dark:text-slate-300 leading-relaxed">
             Escucharás una serie de letras. Pulsa el botón cuando la letra actual sea 
-            <span className="font-bold text-slate-800"> idéntica a la de hace {N} turnos.</span>
+            <span className="font-bold text-slate-800 dark:text-indigo-400"> idéntica a la de hace {N} turnos.</span>
           </p>
         </div>
         <button 
           onClick={startGameLoop}
-          className="bg-primary text-white px-8 py-4 rounded-xl font-bold text-lg flex items-center space-x-2 shadow-lg active:scale-95 transition-transform"
+          className="bg-primary dark:bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold text-lg flex items-center space-x-2 shadow-lg active:scale-95 transition-transform"
         >
           <Play fill="currentColor" />
           <span>Comenzar</span>
@@ -122,17 +120,16 @@ export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
   }
 
   return (
-    <div className="flex flex-col items-center h-full py-6">
+    <div className="flex flex-col items-center h-full py-6 bg-slate-50 dark:bg-black transition-colors">
       <div className="flex justify-between w-full mb-4 px-6">
-        <span className="font-bold text-lg text-primary">{score} pts</span>
-        <span className="text-slate-400 font-mono">{currentIndex + 1}/{TOTAL_TURNS}</span>
+        <span className="font-bold text-lg text-primary dark:text-indigo-400">{score} pts</span>
+        <span className="text-slate-400 dark:text-slate-500 font-mono">{currentIndex + 1}/{TOTAL_TURNS}</span>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center w-full">
-        {/* Visualizer Placeholder */}
-        <div className="w-48 h-48 rounded-full bg-slate-100 flex items-center justify-center relative mb-8">
-             <div className={`absolute inset-0 rounded-full border-4 border-indigo-100 ${currentIndex >= 0 ? 'animate-ping opacity-20' : ''}`}></div>
-             <Ear size={64} className="text-slate-300" />
+        <div className="w-48 h-48 rounded-full bg-slate-100 dark:bg-neutral-900 flex items-center justify-center relative mb-8">
+             <div className={`absolute inset-0 rounded-full border-4 border-indigo-100 dark:border-indigo-900/30 ${currentIndex >= 0 ? 'animate-ping opacity-20' : ''}`}></div>
+             <Ear size={64} className="text-slate-300 dark:text-neutral-700" />
              {feedback === 'correct' && (
                <div className="absolute inset-0 flex items-center justify-center">
                  <div className="text-4xl">✨</div>
@@ -145,17 +142,17 @@ export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
              )}
         </div>
 
-        <div className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Escuchando...</div>
+        <div className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Escuchando...</div>
       </div>
 
       <div className="mt-auto mb-8 w-full px-8">
         <button
           onClick={handleMatch}
-          className="w-full bg-primary text-white py-8 rounded-2xl text-2xl font-black shadow-xl active:scale-95 transition-transform border-b-4 border-indigo-800"
+          className="w-full bg-primary dark:bg-indigo-600 text-white py-8 rounded-2xl text-2xl font-black shadow-xl active:scale-95 transition-transform border-b-4 border-indigo-800 dark:border-indigo-900"
         >
           ¡COINCIDE!
         </button>
-        <p className="text-center mt-4 text-slate-400 text-xs">
+        <p className="text-center mt-4 text-slate-400 dark:text-slate-500 text-xs">
           Match: Letra actual vs. Letra hace {N} pasos
         </p>
       </div>

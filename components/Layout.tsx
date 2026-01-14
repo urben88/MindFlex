@@ -16,10 +16,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const isGameMode = ['active_game', 'active_exercise', 'game_summary'].includes(view);
 
   return (
-    <div className="flex flex-col h-full bg-slate-50">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-black transition-colors duration-300">
       {!isGameMode && (
-        <header className="bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-10 shadow-sm">
-          <h1 className="text-xl font-bold text-primary tracking-tight">MindFlex</h1>
+        <header className="bg-white dark:bg-[#0a0a0a] border-b border-slate-200 dark:border-neutral-800 px-4 py-3 sticky top-0 z-10 shadow-sm transition-colors">
+          <h1 className="text-xl font-bold text-primary dark:text-indigo-400 tracking-tight">MindFlex</h1>
         </header>
       )}
       
@@ -29,9 +29,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </div>
       </main>
 
-      {/* Conditional rendering of bottom tabs - hide inside game */}
       {!isGameMode && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 safe-area-pb z-20">
+        <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#0a0a0a] border-t border-slate-200 dark:border-neutral-800 safe-area-pb z-20 transition-colors">
           <div className="flex justify-around items-center h-16 max-w-md mx-auto">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -40,8 +39,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 <button
                   key={item.id}
                   onClick={() => navigate(item.id as any)}
-                  className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${
-                    isActive ? 'text-primary' : 'text-slate-400 hover:text-slate-600'
+                  className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${
+                    isActive ? 'text-primary dark:text-indigo-400' : 'text-slate-400 dark:text-neutral-500 hover:text-slate-600 dark:hover:text-neutral-300'
                   }`}
                 >
                   <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />

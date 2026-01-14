@@ -18,6 +18,7 @@ const DEFAULT_CACHE: UserCache = {
   history: [],
   settings: {
     soundEnabled: true,
+    darkMode: false,
     difficultyMultiplier: 1.0,
   },
 };
@@ -29,7 +30,12 @@ export const cacheService = {
       if (!stored) return DEFAULT_CACHE;
       const parsed = JSON.parse(stored);
       // Merge with default to ensure structure integrity after updates
-      return { ...DEFAULT_CACHE, ...parsed, gameStats: { ...DEFAULT_CACHE.gameStats, ...parsed.gameStats } };
+      return { 
+        ...DEFAULT_CACHE, 
+        ...parsed, 
+        settings: { ...DEFAULT_CACHE.settings, ...parsed.settings },
+        gameStats: { ...DEFAULT_CACHE.gameStats, ...parsed.gameStats } 
+      };
     } catch (e) {
       console.error('Failed to load cache', e);
       return DEFAULT_CACHE;

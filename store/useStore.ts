@@ -23,6 +23,7 @@ interface State {
   getRecommendation: () => { game: GameId; exercise: ExerciseTemplate };
   replayLastGame: () => void;
   openGuide: (guide: GuidePack) => void;
+  toggleDarkMode: () => void;
 }
 
 export const useStore = create<State>((set, get) => ({
@@ -101,5 +102,18 @@ export const useStore = create<State>((set, get) => ({
     if (lastResult) {
       set({ view: 'active_game', activeGameId: lastResult.gameId, lastResult: null });
     }
+  },
+
+  toggleDarkMode: () => {
+    const { cache } = get();
+    const newCache = {
+      ...cache,
+      settings: {
+        ...cache.settings,
+        darkMode: !cache.settings.darkMode
+      }
+    };
+    cacheService.save(newCache);
+    set({ cache: newCache });
   }
 }));

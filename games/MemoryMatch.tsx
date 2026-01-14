@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { GameResult, MemoryConfig, DifficultyLevel } from '../types';
@@ -38,47 +37,33 @@ export const MemoryMatchGame: React.FC<Props> = ({ config, difficulty }) => {
   const [isPreviewing, setIsPreviewing] = useState(true);
 
   const startTimeRef = useRef(Date.now());
-  // Fix: Initialize useRef hooks with undefined to fix 'Expected 1 arguments' error
   const timerRef = useRef<number | undefined>(undefined);
   const previewTimeoutRef = useRef<number | undefined>(undefined);
 
-  // Reset game state whenever component mounts (including replay)
   useEffect(() => {
     initGame();
     return () => {
-      // Fix: Check existence before clearing timers
       if (timerRef.current !== undefined) clearInterval(timerRef.current);
       if (previewTimeoutRef.current !== undefined) clearTimeout(previewTimeoutRef.current);
     };
-  }, [config, difficulty]); // Re-run if config changes (e.g. diff selector could theoretically trigger this, though Wrapper handles it)
+  }, [config, difficulty]);
 
   const initGame = () => {
-    // Clear any previous timeouts to be safe
     if (previewTimeoutRef.current !== undefined) clearTimeout(previewTimeoutRef.current);
-
-    // Select icons
     const selectedIcons = ICONS.slice(0, pairCount);
-    // Create pairs
     const deck: Card[] = [];
     selectedIcons.forEach((_, index) => {
       deck.push({ id: index * 2, iconIndex: index, isFlipped: true, isMatched: false });
       deck.push({ id: index * 2 + 1, iconIndex: index, isFlipped: true, isMatched: false });
     });
     
-    // Shuffle
     for (let i = deck.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [deck[i], deck[j]] = [deck[j], deck[i]];
     }
 
-    // Set initial state based on preview config
     const shouldPreview = previewTimeMs > 0;
-    
-    setCards(deck.map(c => ({ 
-        ...c, 
-        isFlipped: shouldPreview // If previewing, start flipped up
-    })));
-    
+    setCards(deck.map(c => ({ ...c, isFlipped: shouldPreview })));
     setFlippedIndices([]);
     setScore(0);
     setMoves(0);
@@ -87,27 +72,22 @@ export const MemoryMatchGame: React.FC<Props> = ({ config, difficulty }) => {
     
     startTimeRef.current = Date.now();
 
-    // Handle Preview Timeout
     if (shouldPreview) {
       previewTimeoutRef.current = window.setTimeout(() => {
         setCards(prev => prev.map(c => ({ ...c, isFlipped: false })));
         setIsPreviewing(false);
-        startTimeRef.current = Date.now(); // Start tracking time after preview
+        startTimeRef.current = Date.now();
       }, previewTimeMs);
     }
   };
 
   const handleCardClick = (index: number) => {
     if (isLocked || isPreviewing || cards[index].isFlipped || cards[index].isMatched) return;
-
-    // Flip card
     const newCards = [...cards];
     newCards[index].isFlipped = true;
     setCards(newCards);
-
     const newFlipped = [...flippedIndices, index];
     setFlippedIndices(newFlipped);
-
     if (newFlipped.length === 2) {
       setIsLocked(true);
       setMoves(m => m + 1);
@@ -117,24 +97,20 @@ export const MemoryMatchGame: React.FC<Props> = ({ config, difficulty }) => {
 
   const checkForMatch = (idx1: number, idx2: number) => {
     const isMatch = cards[idx1].iconIndex === cards[idx2].iconIndex;
-
     if (isMatch) {
       const points = Math.round(100 * multiplier);
       setScore(s => s + points);
-      
       const newCards = [...cards];
       newCards[idx1].isMatched = true;
       newCards[idx2].isMatched = true;
       setCards(newCards);
       setFlippedIndices([]);
       setIsLocked(false);
-
-      // Check win condition
       if (newCards.every(c => c.isMatched)) {
         finishGame(newCards.length / 2, moves + 1, score + points);
       }
     } else {
-      setScore(s => Math.max(0, s - Math.round(10 * multiplier))); // Penalty
+      setScore(s => Math.max(0, s - Math.round(10 * multiplier)));
       setTimeout(() => {
         const newCards = [...cards];
         newCards[idx1].isFlipped = false;
@@ -142,44 +118,41 @@ export const MemoryMatchGame: React.FC<Props> = ({ config, difficulty }) => {
         setCards(newCards);
         setFlippedIndices([]);
         setIsLocked(false);
-      }, 1000);
+      }, 800);
     }
   };
 
   const finishGame = (totalPairs: number, totalMoves: number, finalScore: number) => {
-    // Perfect game is totalPairs moves. Accuracy = totalPairs / totalMoves
     const accuracy = totalPairs / totalMoves;
-    
     const result: GameResult = {
       gameId: 'memory',
       score: finalScore,
       accuracy,
-      maxLevel: 1, // Memory doesn't have levels in this mode
+      maxLevel: 1,
       durationSeconds: (Date.now() - startTimeRef.current) / 1000,
       timestamp: Date.now(),
       difficulty
     };
-    
-    // Add small delay to show final match
-    setTimeout(() => completeGame(result), 1000);
+    setTimeout(() => completeGame(result), 800);
   };
 
-  // Determine grid columns based on card count
   const getGridClass = () => {
     const count = cards.length;
-    if (count <= 12) return 'grid-cols-3'; // 3x4
-    if (count <= 20) return 'grid-cols-4'; // 4x5
-    return 'grid-cols-5'; // 5x6
+    if (count <= 12) return 'grid-cols-3';
+    if (count <= 20) return 'grid-cols-4';
+    return 'grid-cols-5';
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-black transition-colors">
       <div className="flex justify-between items-center p-4">
-        <div className="text-sm font-bold text-slate-400">PARES: {cards.filter(c => c.isMatched).length / 2}/{pairCount}</div>
-        <div className="text-xl font-bold text-primary">{score}</div>
+        <div className="text-sm font-bold text-slate-400 dark:text-neutral-500 uppercase tracking-widest">
+            {cards.filter(c => c.isMatched).length / 2}/{pairCount} PARES
+        </div>
+        <div className="text-xl font-bold text-primary dark:text-indigo-400">{score}</div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto hide-scrollbar">
         <div className={`grid gap-3 w-full max-w-sm mx-auto ${getGridClass()}`}>
           {cards.map((card, index) => {
             const Icon = ICONS[card.iconIndex];
@@ -189,13 +162,13 @@ export const MemoryMatchGame: React.FC<Props> = ({ config, difficulty }) => {
                 onClick={() => handleCardClick(index)}
                 disabled={card.isMatched || isPreviewing}
                 className={`
-                  aspect-[3/4] rounded-xl flex items-center justify-center shadow-sm transition-all duration-300 transform
-                  ${card.isFlipped || card.isMatched ? 'rotate-y-180 bg-white border-2 border-primary' : 'bg-slate-200 border-2 border-slate-300'}
-                  ${card.isMatched ? 'opacity-50' : 'opacity-100'}
+                  aspect-[3/4] rounded-2xl flex items-center justify-center shadow-sm transition-all duration-300 transform preserve-3d
+                  ${card.isFlipped || card.isMatched ? 'rotate-y-180 bg-white dark:bg-neutral-900 border-2 border-primary' : 'bg-slate-200 dark:bg-neutral-800 border-2 border-slate-300 dark:border-neutral-700'}
+                  ${card.isMatched ? 'opacity-40' : 'opacity-100'}
                 `}
               >
                 {(card.isFlipped || card.isMatched) && (
-                   <Icon className="text-primary w-1/2 h-1/2 animate-in zoom-in duration-200" strokeWidth={2.5} />
+                   <Icon className="text-primary dark:text-indigo-400 w-1/2 h-1/2 animate-in zoom-in duration-200" strokeWidth={2.5} />
                 )}
               </button>
             );
@@ -204,8 +177,8 @@ export const MemoryMatchGame: React.FC<Props> = ({ config, difficulty }) => {
       </div>
       
       {isPreviewing && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/10 pointer-events-none">
-            <div className="bg-white px-6 py-2 rounded-full shadow-lg font-bold text-primary animate-pulse border-2 border-primary/20">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/20 dark:bg-black/60 backdrop-blur-[2px] pointer-events-none">
+            <div className="bg-white dark:bg-neutral-900 px-8 py-3 rounded-full shadow-2xl font-bold text-primary dark:text-indigo-400 animate-pulse border-2 border-primary/20 dark:border-indigo-500/20">
                 Memoriza las cartas...
             </div>
         </div>

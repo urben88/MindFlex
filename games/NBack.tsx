@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { GameResult, NBackConfig, DifficultyLevel } from '../types';
@@ -21,7 +20,6 @@ export const NBackGame: React.FC<Props> = ({ config, difficulty }) => {
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
 
   const startTimeRef = useRef(Date.now());
-  // Fix: Add initial value undefined to useRef to avoid 'Expected 1 arguments' error
   const timerRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
@@ -35,7 +33,6 @@ export const NBackGame: React.FC<Props> = ({ config, difficulty }) => {
     }
     setSequence(seq);
     startGameLoop();
-    // Fix: Explicitly check if timer exists before clearing
     return () => {
       if (timerRef.current !== undefined) {
         clearInterval(timerRef.current);
@@ -48,7 +45,7 @@ export const NBackGame: React.FC<Props> = ({ config, difficulty }) => {
     timerRef.current = window.setInterval(() => {
       idx++;
       if (idx >= TOTAL_TURNS) {
-        endGame(hits, misses, score); // Pass current values directly
+        endGame(hits, misses, score);
         return;
       }
       setCurrentIndex(idx);
@@ -101,10 +98,10 @@ export const NBackGame: React.FC<Props> = ({ config, difficulty }) => {
   };
 
   return (
-    <div className="flex flex-col items-center h-full py-4">
+    <div className="flex flex-col items-center h-full py-4 bg-slate-50 dark:bg-black transition-colors">
       <div className="flex justify-between w-full mb-4 px-4">
-        <span className="font-bold text-lg">Puntuación: {score}</span>
-        <span className="text-slate-500">{currentIndex + 1}/{TOTAL_TURNS}</span>
+        <span className="font-bold text-lg dark:text-indigo-400">Puntos: {score}</span>
+        <span className="text-slate-500 dark:text-neutral-500">{currentIndex + 1}/{TOTAL_TURNS}</span>
       </div>
 
       <div className="flex-1 flex items-center justify-center">
@@ -112,10 +109,10 @@ export const NBackGame: React.FC<Props> = ({ config, difficulty }) => {
           {Array.from({ length: 9 }).map((_, i) => (
             <div
               key={i}
-              className={`rounded-lg border-2 transition-all duration-200 ${
+              className={`rounded-xl border-2 transition-all duration-200 ${
                 activeCell === i 
-                  ? 'bg-primary border-primary shadow-lg scale-105' 
-                  : 'bg-white border-slate-200'
+                  ? 'bg-primary border-primary shadow-[0_0_20px_rgba(79,70,229,0.4)] scale-105' 
+                  : 'bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800'
               }`}
             />
           ))}
@@ -128,11 +125,11 @@ export const NBackGame: React.FC<Props> = ({ config, difficulty }) => {
         </div>
         <button
           onClick={handleMatch}
-          className="w-full bg-primary text-white py-6 rounded-2xl text-xl font-bold shadow-md active:scale-95 transition-transform"
+          className="w-full bg-primary text-white py-6 rounded-2xl text-xl font-bold shadow-lg active:scale-95 transition-all"
         >
           ¡COINCIDE! ({N}-Back)
         </button>
-        <p className="text-center mt-4 text-slate-500 text-sm">
+        <p className="text-center mt-4 text-slate-500 dark:text-neutral-500 text-sm">
           Pulsa si la posición es igual a la de hace {N} turnos.
         </p>
       </div>

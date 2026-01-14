@@ -17,7 +17,6 @@ export interface GameStats {
   highScore: number;
   avgAccuracy: number;
   lastPlayed: number;
-  // ... rest of interfaces remain the same
 }
 
 export interface UserCache {
@@ -27,6 +26,7 @@ export interface UserCache {
   history: GameResult[]; // Limit to last 50 for storage size
   settings: {
     soundEnabled: boolean;
+    darkMode: boolean;
     difficultyMultiplier: number; // 0.8 (easy) to 1.5 (hard)
   };
 }
