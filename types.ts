@@ -1,6 +1,7 @@
+
 export type GameId = 'nback' | 'sequence' | 'memory' | 'stroop' | 'snapshot' | 'audio-nback' | 'echo-sequence' | 'story-listener';
 export type ViewState = 'home' | 'games' | 'exercises' | 'stats' | 'settings' | 'active_game' | 'active_exercise' | 'game_summary' | 'guide_details' | 'casillero';
-export type DifficultyLevel = 'easy' | 'medium' | 'hard';
+export type DifficultyLevel = 'easy' | 'medium' | 'hard' | 'custom';
 
 export interface GameResult {
   gameId: GameId;

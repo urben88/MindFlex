@@ -18,7 +18,7 @@ import { DifficultySelector } from './components/DifficultySelector';
 import { GameSummary } from './components/GameSummary';
 import { ActiveGameLayout } from './components/ActiveGameLayout';
 import { GAME_DEFINITIONS, EXERCISE_TEMPLATES, DIFFICULTY_CONFIGS } from './constants';
-import { GameId, DifficultyLevel, AudioNBackConfig, EchoSequenceConfig, MemoryConfig, SnapshotConfig, StoryListenerConfig } from './types';
+import { GameId, DifficultyLevel, AudioNBackConfig, EchoSequenceConfig, MemoryConfig, SnapshotConfig, StoryListenerConfig, GameConfig } from './types';
 import { ArrowRight, Filter, SortAsc, Info, Volume2, Moon, Sun, Trash2 } from 'lucide-react';
 import { GameIcon } from './components/GameIcon';
 
@@ -277,9 +277,11 @@ const StatsView: React.FC = () => {
 const ActiveGameWrapper: React.FC = () => {
     const { activeGameId, navigate } = useStore();
     const [difficulty, setDifficulty] = useState<DifficultyLevel | null>(null);
+    const [customConfig, setCustomConfig] = useState<GameConfig | null>(null);
 
     useEffect(() => {
         setDifficulty(null);
+        setCustomConfig(null);
     }, [activeGameId]);
 
     if (!activeGameId) return null;
@@ -289,13 +291,19 @@ const ActiveGameWrapper: React.FC = () => {
             <DifficultySelector 
                 gameTitle={GAME_DEFINITIONS[activeGameId].title}
                 gameId={activeGameId}
-                onSelect={setDifficulty}
+                onSelect={(diff, config) => {
+                    setDifficulty(diff);
+                    if (config) setCustomConfig(config);
+                }}
                 onBack={() => navigate('games')}
             />
         );
     }
 
-    const config = DIFFICULTY_CONFIGS[activeGameId][difficulty];
+    // Use custom config if available, otherwise look up in pre-defined configs
+    const config = difficulty === 'custom' && customConfig 
+        ? customConfig 
+        : DIFFICULTY_CONFIGS[activeGameId][difficulty as 'easy' | 'medium' | 'hard'];
     
     const renderGame = () => {
         switch (activeGameId) {
