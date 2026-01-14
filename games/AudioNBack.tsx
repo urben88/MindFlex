@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { GameResult, AudioNBackConfig, DifficultyLevel } from '../types';
@@ -24,7 +25,8 @@ export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
 
   const startTimeRef = useRef(Date.now());
-  const timerRef = useRef<number>();
+  // Fix: Initialize timerRef with undefined to fix 'Expected 1 arguments' error
+  const timerRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     // Generate full sequence upfront
@@ -39,7 +41,7 @@ export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
     setSequence(seq);
     
     return () => {
-      clearInterval(timerRef.current);
+      if (timerRef.current !== undefined) clearInterval(timerRef.current);
       ttsService.cancel();
     };
   }, []);
@@ -63,7 +65,7 @@ export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
   };
 
   const endGame = (finalHits: number, finalMisses: number, finalScore: number) => {
-    clearInterval(timerRef.current);
+    if (timerRef.current !== undefined) clearInterval(timerRef.current);
     const accuracy = finalHits / ((finalHits + finalMisses) || 1);
     
     const result: GameResult = {

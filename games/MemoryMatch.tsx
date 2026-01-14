@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { GameResult, MemoryConfig, DifficultyLevel } from '../types';
@@ -37,21 +38,23 @@ export const MemoryMatchGame: React.FC<Props> = ({ config, difficulty }) => {
   const [isPreviewing, setIsPreviewing] = useState(true);
 
   const startTimeRef = useRef(Date.now());
-  const timerRef = useRef<number>();
-  const previewTimeoutRef = useRef<number>();
+  // Fix: Initialize useRef hooks with undefined to fix 'Expected 1 arguments' error
+  const timerRef = useRef<number | undefined>(undefined);
+  const previewTimeoutRef = useRef<number | undefined>(undefined);
 
   // Reset game state whenever component mounts (including replay)
   useEffect(() => {
     initGame();
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (previewTimeoutRef.current) clearTimeout(previewTimeoutRef.current);
+      // Fix: Check existence before clearing timers
+      if (timerRef.current !== undefined) clearInterval(timerRef.current);
+      if (previewTimeoutRef.current !== undefined) clearTimeout(previewTimeoutRef.current);
     };
   }, [config, difficulty]); // Re-run if config changes (e.g. diff selector could theoretically trigger this, though Wrapper handles it)
 
   const initGame = () => {
     // Clear any previous timeouts to be safe
-    if (previewTimeoutRef.current) clearTimeout(previewTimeoutRef.current);
+    if (previewTimeoutRef.current !== undefined) clearTimeout(previewTimeoutRef.current);
 
     // Select icons
     const selectedIcons = ICONS.slice(0, pairCount);

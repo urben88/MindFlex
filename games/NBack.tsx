@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { GameResult, NBackConfig, DifficultyLevel } from '../types';
@@ -20,7 +21,8 @@ export const NBackGame: React.FC<Props> = ({ config, difficulty }) => {
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
 
   const startTimeRef = useRef(Date.now());
-  const timerRef = useRef<number>();
+  // Fix: Add initial value undefined to useRef to avoid 'Expected 1 arguments' error
+  const timerRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const seq = [];
@@ -33,7 +35,12 @@ export const NBackGame: React.FC<Props> = ({ config, difficulty }) => {
     }
     setSequence(seq);
     startGameLoop();
-    return () => clearInterval(timerRef.current);
+    // Fix: Explicitly check if timer exists before clearing
+    return () => {
+      if (timerRef.current !== undefined) {
+        clearInterval(timerRef.current);
+      }
+    };
   }, []);
 
   const startGameLoop = () => {
@@ -59,7 +66,9 @@ export const NBackGame: React.FC<Props> = ({ config, difficulty }) => {
   }, [currentIndex]);
 
   const endGame = (finalHits: number, finalMisses: number, finalScore: number) => {
-    clearInterval(timerRef.current);
+    if (timerRef.current !== undefined) {
+      clearInterval(timerRef.current);
+    }
     const accuracy = finalHits / ((finalHits + finalMisses) || 1);
     
     const result: GameResult = {

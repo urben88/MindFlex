@@ -4,74 +4,55 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>MindFlex</title>
+    
+    <script>
+      // Parche de emergencia para variables de entorno en el navegador
+      window.process = window.process || { env: { API_KEY: "" } };
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      // Parche Robusto para process.env en el navegador
-      (function() {
-        if (typeof window.process === 'undefined') {
-          window.process = { env: {} };
-        } else if (typeof window.process.env === 'undefined') {
-          window.process.env = {};
-        }
-      })();
-
-      // Captura de errores temprana para depuración en producción
-      window.onerror = function(msg, url, lineNo, columnNo, error) {
-        console.error('Error Crítico detectado:', msg, '\nEn:', url, 'línea:', lineNo);
-        return false;
-      };
-
       tailwind.config = {
         theme: {
           extend: {
             colors: {
-              primary: '#4f46e5', // Indigo 600
-              secondary: '#0ea5e9', // Sky 500
-              surface: '#f8fafc', // Slate 50
+              primary: '#4f46e5',
+              secondary: '#0ea5e9',
+              surface: '#f8fafc',
             }
           }
         }
       }
     </script>
     <style>
-      body {
-        overscroll-behavior-y: none;
-        -webkit-tap-highlight-color: transparent;
-        background-color: #f8fafc;
-      }
-      .fade-enter { opacity: 0; }
-      .fade-enter-active { opacity: 1; transition: opacity 200ms ease-in; }
-      /* Prevenir que el contenido se vea antes de cargar React */
-      #root:empty {
-        display: flex;
-        align-items: center;
-        justify-center: center;
-        height: 100vh;
-        background: white;
-      }
+      body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; background-color: #f8fafc; }
+      #root:empty { display: flex; align-items: center; justify-content: center; height: 100vh; background: white; }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
-  <script type="importmap">
+    
+    <script type="importmap">
 {
   "imports": {
     "@google/genai": "https://esm.sh/@google/genai@^1.35.0",
     "react": "https://esm.sh/react@^19.2.3",
     "react/": "https://esm.sh/react@^19.2.3/",
     "react-dom": "https://esm.sh/react-dom@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react-dom/client": "https://esm.sh/react-dom@^19.2.3/client",
     "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "zustand": "https://esm.sh/zustand@^5.0.10"
+    "zustand": "https://esm.sh/zustand@^5.0.10",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
   }
 }
 </script>
-</head>
+  </head>
   <body class="bg-surface text-slate-800 antialiased h-screen overflow-hidden flex flex-col">
     <div id="root" class="flex-1 flex flex-col h-full overflow-hidden">
-      <!-- Loader simple mientras carga el JS -->
-      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; font-family: sans-serif; color: #4f46e5;">
-        <div style="width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top: 4px solid #4f46e5; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      <div id="app-loader" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; font-family: sans-serif; color: #4f46e5; background: white;">
+        <div style="width: 40px; height: 40px; border: 4px solid #f1f5f9; border-top: 4px solid #4f46e5; border-radius: 50%; animation: spin 1s linear infinite;"></div>
         <p style="margin-top: 20px; font-weight: bold;">Cargando MindFlex...</p>
       </div>
-      <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
     </div>
+    <!-- Carga explícita del punto de entrada para producción -->
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>

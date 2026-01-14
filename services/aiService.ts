@@ -1,24 +1,6 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { ExerciseTemplate, StoryGameData, ExerciseContent } from "../types";
-
-// Función de utilidad para obtener la clave sin romper el hilo de ejecución
-const safeGetApiKey = (): string => {
-  try {
-    // Intentamos acceder de la forma más segura posible en navegador
-    if (typeof window !== 'undefined' && (window as any).process?.env?.API_KEY) {
-      return (window as any).process.env.API_KEY;
-    }
-    // Fallback para reemplazo directo de bundlers (Vite/Coolify)
-    if (typeof process !== 'undefined' && process.env?.API_KEY) {
-      return process.env.API_KEY;
-    }
-    return '';
-  } catch (e) {
-    return '';
-  }
-};
-
-const API_KEY = safeGetApiKey();
 
 const memoryCache: {
     exercises: Map<string, ExerciseContent>;
@@ -29,18 +11,18 @@ const memoryCache: {
 };
 
 export const aiService = {
-  isAvailable: () => !!safeGetApiKey(),
+  isAvailable: () => !!process.env.API_KEY,
 
   generateExerciseContent: async (template: ExerciseTemplate): Promise<ExerciseContent> => {
-    const key = safeGetApiKey();
     if (memoryCache.exercises.has(template.id)) {
         return memoryCache.exercises.get(template.id)!;
     }
 
-    if (!key) return aiService.getFallbackContent(template);
+    if (!process.env.API_KEY) return aiService.getFallbackContent(template);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: key });
+      // Fix: Use process.env.API_KEY directly for GoogleGenAI initialization
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const prompt = `Genera contenido estructurado para: "${template.type}" (${template.title}). Objetivo: ${template.benefits}.`;
 
       const response = await ai.models.generateContent({
@@ -71,13 +53,13 @@ export const aiService = {
   },
 
   generateStoryGame: async (difficulty: string): Promise<StoryGameData | null> => {
-    const key = safeGetApiKey();
     const cacheKey = `story_${difficulty}`;
     if (memoryCache.stories.has(cacheKey)) return memoryCache.stories.get(cacheKey)!;
-    if (!key) return null;
+    if (!process.env.API_KEY) return null;
 
     try {
-        const ai = new GoogleGenAI({ apiKey: key });
+        // Fix: Use process.env.API_KEY directly for GoogleGenAI initialization
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
             contents: `Genera una historia corta en español. Dificultad: ${difficulty}.`,
@@ -104,10 +86,10 @@ export const aiService = {
   },
 
   getFeedback: async (gameName: string, score: number, accuracy: number): Promise<string> => {
-    const key = safeGetApiKey();
-    if (!key) return `¡Bien hecho! Precisión: ${Math.round(accuracy * 100)}%.`;
+    if (!process.env.API_KEY) return `¡Bien hecho! Precisión: ${Math.round(accuracy * 100)}%.`;
     try {
-        const ai = new GoogleGenAI({ apiKey: key });
+        // Fix: Use process.env.API_KEY directly for GoogleGenAI initialization
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
             contents: `Usuario jugó ${gameName}. Score ${score}, Acc ${Math.round(accuracy * 100)}%. Consejo breve.`,

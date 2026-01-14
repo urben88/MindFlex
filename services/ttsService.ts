@@ -1,38 +1,45 @@
-import { GoogleGenAI } from "@google/genai";
 
-const safeGetApiKey = (): string => {
-  try {
-    if (typeof window !== 'undefined' && (window as any).process?.env?.API_KEY) {
-      return (window as any).process.env.API_KEY;
-    }
-    if (typeof process !== 'undefined' && process.env?.API_KEY) {
-      return process.env.API_KEY;
-    }
-    return '';
-  } catch (e) {
-    return '';
-  }
-};
+import { GoogleGenAI, Modality } from "@google/genai";
 
 let audioContext: AudioContext | null = null;
 let currentSource: AudioBufferSourceNode | null = null;
 
-function decodeBase64(base64: string) {
+// Fix: Implement manual decode function following guidelines
+function decode(base64: string) {
   const binaryString = atob(base64);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
   for (let i = 0; i < len; i++) {
     bytes[i] = binaryString.charCodeAt(i);
   }
-  return bytes.buffer;
+  return bytes;
+}
+
+// Fix: Implement manual PCM audio decoding as required for raw Gemini streams
+async function decodeAudioData(
+  data: Uint8Array,
+  ctx: AudioContext,
+  sampleRate: number,
+  numChannels: number,
+): Promise<AudioBuffer> {
+  const dataInt16 = new Int16Array(data.buffer);
+  const frameCount = dataInt16.length / numChannels;
+  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+
+  for (let channel = 0; channel < numChannels; channel++) {
+    const channelData = buffer.getChannelData(channel);
+    for (let i = 0; i < frameCount; i++) {
+      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+    }
+  }
+  return buffer;
 }
 
 export const ttsService = {
   speak: async (text: string, rate: number = 1.0, onEnd?: () => void, useAi: boolean = false) => {
-    const key = safeGetApiKey();
     ttsService.cancel();
 
-    if (useAi && key) {
+    if (useAi && process.env.API_KEY) {
         try {
             await playAiAudio(text, rate, onEnd);
             return;
@@ -68,15 +75,16 @@ const playBrowserAudio = (text: string, rate: number, onEnd?: () => void) => {
 };
 
 const playAiAudio = async (text: string, rate: number, onEnd?: () => void) => {
-    const key = safeGetApiKey();
-    if (!key) throw new Error("API Key missing");
-    const ai = new GoogleGenAI({ apiKey: key });
+    if (!process.env.API_KEY) throw new Error("API Key missing");
+    // Fix: Always create a new GoogleGenAI instance right before the call
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
+    // Fix: Updated generateContent parameters for TTS according to guidelines
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-preview-tts',
-      contents: { parts: [{ text: text }] },
+      contents: [{ parts: [{ text: text }] }], // Fix: Must be an array
       config: {
-        responseModalities: ['AUDIO'], 
+        responseModalities: [Modality.AUDIO], // Fix: Use Modality enum and single element array
         speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } },
       },
     });
@@ -84,10 +92,16 @@ const playAiAudio = async (text: string, rate: number, onEnd?: () => void) => {
     const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
     if (!audioData) throw new Error("No audio data");
 
-    if (!audioContext) audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    if (!audioContext) audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({sampleRate: 24000});
     if (audioContext.state === 'suspended') await audioContext.resume();
 
-    const audioBuffer = await audioContext.decodeAudioData(decodeBase64(audioData));
+    // Fix: Use manual PCM decoding instead of native AudioContext.decodeAudioData
+    const audioBuffer = await decodeAudioData(
+      decode(audioData),
+      audioContext,
+      24000,
+      1
+    );
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
     if (rate !== 1.0) source.playbackRate.value = rate;

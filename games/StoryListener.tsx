@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { GameResult, StoryListenerConfig, DifficultyLevel, StoryGameData } from '../types';
@@ -35,12 +36,13 @@ export const StoryListenerGame: React.FC<Props> = ({ config, difficulty }) => {
   const [score, setScore] = useState(0);
   const [isAiGenerated, setIsAiGenerated] = useState(false);
   const startTimeRef = useRef(Date.now());
-  const loadingTimeoutRef = useRef<number>();
+  // Fix: Initialize loadingTimeoutRef with undefined to fix 'Expected 1 arguments' error
+  const loadingTimeoutRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     return () => {
         ttsService.cancel();
-        if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
+        if (loadingTimeoutRef.current !== undefined) clearTimeout(loadingTimeoutRef.current);
     };
   }, []);
 
@@ -68,7 +70,7 @@ export const StoryListenerGame: React.FC<Props> = ({ config, difficulty }) => {
     }
 
     hasLoaded = true; // Mark as loaded so timeout doesn't fire if we got here fast enough
-    if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
+    if (loadingTimeoutRef.current !== undefined) clearTimeout(loadingTimeoutRef.current);
 
     if (story) {
         setCurrentStory(story);
