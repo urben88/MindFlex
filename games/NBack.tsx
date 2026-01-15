@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { GameResult, NBackConfig, DifficultyLevel } from '../types';
@@ -8,7 +9,7 @@ interface Props {
 }
 
 export const NBackGame: React.FC<Props> = ({ config, difficulty }) => {
-  const { completeGame } = useStore();
+  const { completeGame, triggerSuccess } = useStore();
   const { n: N, totalTurns: TOTAL_TURNS, speedMs: SPEED_MS, multiplier } = config;
 
   const [sequence, setSequence] = useState<number[]>([]);
@@ -81,7 +82,7 @@ export const NBackGame: React.FC<Props> = ({ config, difficulty }) => {
   };
 
   const handleMatch = () => {
-    if (currentIndex < N) return;
+    if (currentIndex < N || feedback !== null) return;
     
     const isMatch = sequence[currentIndex] === sequence[currentIndex - N];
     const points = Math.round(100 * multiplier);
@@ -90,6 +91,7 @@ export const NBackGame: React.FC<Props> = ({ config, difficulty }) => {
       setScore(s => s + points);
       setHits(h => h + 1);
       setFeedback('correct');
+      triggerSuccess();
     } else {
       setScore(s => Math.max(0, s - Math.round(points / 2)));
       setMisses(m => m + 1);

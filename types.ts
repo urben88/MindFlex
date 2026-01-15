@@ -1,5 +1,5 @@
 
-export type GameId = 'nback' | 'sequence' | 'memory' | 'stroop' | 'snapshot' | 'audio-nback' | 'echo-sequence' | 'story-listener';
+export type GameId = 'nback' | 'sequence' | 'memory' | 'stroop' | 'snapshot' | 'audio-nback' | 'echo-sequence' | 'story-listener' | 'casillero-practice';
 export type ViewState = 'home' | 'games' | 'exercises' | 'stats' | 'settings' | 'active_game' | 'active_exercise' | 'game_summary' | 'guide_details' | 'casillero';
 export type DifficultyLevel = 'easy' | 'medium' | 'hard' | 'custom';
 
@@ -125,5 +125,11 @@ export interface StoryListenerConfig extends BaseGameConfig {
   questionComplexity: 'simple' | 'inference';
 }
 
+export interface CasilleroPracticeConfig extends BaseGameConfig {
+  maxNumber: number;
+  rounds: number;
+  timePerRound: number;
+}
+
 // Union type for passing to components
-export type GameConfig = NBackConfig | SequenceConfig | StroopConfig | MemoryConfig | SnapshotConfig | AudioNBackConfig | EchoSequenceConfig | StoryListenerConfig;
+export type GameConfig = NBackConfig | SequenceConfig | StroopConfig | MemoryConfig | SnapshotConfig | AudioNBackConfig | EchoSequenceConfig | StoryListenerConfig | CasilleroPracticeConfig;

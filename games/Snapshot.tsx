@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { GameResult, SnapshotConfig, DifficultyLevel } from '../types';
@@ -11,7 +12,6 @@ interface Props {
   difficulty: DifficultyLevel;
 }
 
-// Possible shapes/icons
 const ICONS = [
   { id: 'triangle', Icon: Triangle, label: 'Triángulo' },
   { id: 'circle', Icon: Circle, label: 'Círculo' },
@@ -36,7 +36,7 @@ const COLORS = [
 interface SceneItem {
   iconId: string;
   colorId: string;
-  x: number; // grid position or random percent
+  x: number;
   y: number;
   rotation: number;
 }
@@ -48,7 +48,7 @@ interface Question {
 }
 
 export const SnapshotGame: React.FC<Props> = ({ config, difficulty }) => {
-  const { completeGame } = useStore();
+  const { completeGame, triggerSuccess } = useStore();
   const { itemsCount, memorizeTimeMs, rounds, multiplier } = config;
 
   const [phase, setPhase] = useState<'memorize' | 'question' | 'feedback' | 'finished'>('memorize');
@@ -59,25 +59,18 @@ export const SnapshotGame: React.FC<Props> = ({ config, difficulty }) => {
   const [timeLeft, setTimeLeft] = useState(0);
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
 
-  // Refs for tracking performance
   const startTimeRef = useRef(Date.now());
   const correctCountRef = useRef(0);
 
   useEffect(() => {
     startRound();
-    // Cleanup interval usually handled inside effects or local timeouts
   }, [currentRound]);
 
   const startRound = () => {
-    // Generate Scene
     const newItems: SceneItem[] = [];
     for (let i = 0; i < itemsCount; i++) {
         const icon = ICONS[Math.floor(Math.random() * ICONS.length)];
         const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-        
-        // Ensure some variety in placement (simple grid-like logic or random)
-        // Using random for "Snapshot" feel, but ensuring no total overlap would be better.
-        // For simplicity: simple grid 3x4
         const col = i % 3;
         const row = Math.floor(i / 3);
         
@@ -86,7 +79,7 @@ export const SnapshotGame: React.FC<Props> = ({ config, difficulty }) => {
             colorId: color.id,
             x: col, 
             y: row,
-            rotation: Math.floor(Math.random() * 4) * 45 // 0, 45, 90, etc
+            rotation: Math.floor(Math.random() * 4) * 45
         });
     }
     setSceneItems(newItems);
@@ -108,71 +101,53 @@ export const SnapshotGame: React.FC<Props> = ({ config, difficulty }) => {
   };
 
   const generateQuestion = (items: SceneItem[]) => {
-      // Logic to create a question about the items
       const type = Math.random() < 0.5 ? 'presence' : 'color';
       let q: Question;
 
       if (type === 'presence') {
-          // "Which of these was in the picture?" or "Which was NOT?"
-          // Let's go with "Which object was present?"
           const target = items[Math.floor(Math.random() * items.length)];
           const targetDef = ICONS.find(i => i.id === target.iconId)!;
-          
-          // Generate 3 distractors
           const distractors = ICONS.filter(i => !items.some(item => item.iconId === i.id));
           const optionsPool = [...distractors].sort(() => 0.5 - Math.random()).slice(0, 3);
-          
-          // Mix target into options
           const allOptions = [targetDef, ...optionsPool];
-          // Shuffle options
           for (let i = allOptions.length - 1; i > 0; i--) {
               const j = Math.floor(Math.random() * (i + 1));
               [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
           }
-
           q = {
               text: "¿Cuál de estos objetos estaba en la imagen?",
               options: allOptions.map(o => o.label),
               correctIndex: allOptions.findIndex(o => o.id === targetDef.id)
           };
-
       } else {
-          // Color question
           const target = items[Math.floor(Math.random() * items.length)];
           const targetIconDef = ICONS.find(i => i.id === target.iconId)!;
           const targetColorDef = COLORS.find(c => c.id === target.colorId)!;
-
-          const options = COLORS.map(c => c.label).slice(0, 4); // Just take first 4 colors or shuffle
-          // Ensure correct answer is in
+          const options = COLORS.map(c => c.label).slice(0, 4);
           if(!options.includes(targetColorDef.label)) options[Math.floor(Math.random() * 4)] = targetColorDef.label;
-
           q = {
               text: `¿De qué color era el objeto: ${targetIconDef.label}?`,
               options: options,
               correctIndex: options.indexOf(targetColorDef.label)
           };
       }
-
       setQuestion(q);
       setPhase('question');
   };
 
   const handleAnswer = (index: number) => {
       if (phase !== 'question') return;
-      
       const isCorrect = index === question?.correctIndex;
-      
       if (isCorrect) {
           const points = Math.round(100 * multiplier);
           setScore(s => s + points);
           correctCountRef.current += 1;
           setFeedback('correct');
+          triggerSuccess();
       } else {
           setFeedback('wrong');
       }
-      
       setPhase('feedback');
-      
       setTimeout(() => {
           if (currentRound >= rounds) {
               finishGame();
@@ -184,7 +159,6 @@ export const SnapshotGame: React.FC<Props> = ({ config, difficulty }) => {
 
   const finishGame = () => {
     const accuracy = correctCountRef.current / rounds;
-    
     const result: GameResult = {
       gameId: 'snapshot',
       score: score,
@@ -198,21 +172,19 @@ export const SnapshotGame: React.FC<Props> = ({ config, difficulty }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-black transition-colors">
       <div className="flex justify-between items-center px-6 py-4">
-        <div className="text-sm font-bold text-slate-400">RONDA {currentRound}/{rounds}</div>
-        <div className="text-xl font-bold text-primary">{score}</div>
+        <div className="text-sm font-bold text-slate-400 dark:text-neutral-500 uppercase tracking-widest">RONDA {currentRound}/{rounds}</div>
+        <div className="text-xl font-bold text-primary dark:text-indigo-400">{score}</div>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center p-4">
-        
         {phase === 'memorize' && (
-            <div className="relative w-full max-w-sm aspect-square bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden grid grid-cols-3 grid-rows-4 p-4 gap-2">
+            <div className="relative w-full max-w-sm aspect-square bg-white dark:bg-neutral-900 rounded-3xl shadow-lg border border-slate-200 dark:border-neutral-800 overflow-hidden grid grid-cols-3 grid-rows-4 p-4 gap-2 transition-colors">
                 {sceneItems.map((item, i) => {
                     const IconDef = ICONS.find(def => def.id === item.iconId)!;
                     const ColorDef = COLORS.find(def => def.id === item.colorId)!;
                     const Icon = IconDef.Icon;
-                    
                     return (
                         <div key={i} className="flex items-center justify-center">
                             <Icon 
@@ -223,9 +195,7 @@ export const SnapshotGame: React.FC<Props> = ({ config, difficulty }) => {
                         </div>
                     );
                 })}
-                
-                {/* Timer Overlay */}
-                <div className="absolute top-2 right-2 bg-slate-900/80 text-white px-3 py-1 rounded-full text-xs font-bold">
+                <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold font-mono">
                     {Math.ceil(timeLeft)}s
                 </div>
             </div>
@@ -233,26 +203,25 @@ export const SnapshotGame: React.FC<Props> = ({ config, difficulty }) => {
 
         {(phase === 'question' || phase === 'feedback') && question && (
              <div className="w-full max-w-sm space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 text-center">
-                    <h3 className="text-xl font-bold text-slate-800 leading-tight">
+                <div className="bg-white dark:bg-[#0a0a0a] p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-neutral-800 text-center transition-colors">
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-white leading-tight">
                         {question.text}
                     </h3>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3">
                     {question.options.map((opt, i) => {
-                         let btnClass = "bg-white border-2 border-slate-200 text-slate-700 hover:border-slate-300";
+                         let btnClass = "bg-white dark:bg-[#0a0a0a] border-2 border-slate-200 dark:border-neutral-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-neutral-700";
                          if (phase === 'feedback') {
-                             if (i === question.correctIndex) btnClass = "bg-green-100 border-green-500 text-green-700 font-bold";
-                             else if (i !== question.correctIndex && feedback === 'wrong') btnClass = "opacity-50 border-slate-100";
+                             if (i === question.correctIndex) btnClass = "bg-green-100 dark:bg-green-950/40 border-green-500 text-green-700 dark:text-green-400 font-bold";
+                             else if (i !== question.correctIndex && feedback === 'wrong') btnClass = "opacity-50 border-slate-100 dark:border-neutral-900";
                          }
-
                          return (
                             <button
                                 key={i}
                                 disabled={phase === 'feedback'}
                                 onClick={() => handleAnswer(i)}
-                                className={`p-4 rounded-xl text-lg font-medium transition-all active:scale-98 ${btnClass}`}
+                                className={`p-4 rounded-2xl text-lg font-bold transition-all active:scale-98 ${btnClass}`}
                             >
                                 {opt}
                             </button>
@@ -261,13 +230,12 @@ export const SnapshotGame: React.FC<Props> = ({ config, difficulty }) => {
                 </div>
                 
                 {phase === 'feedback' && (
-                    <div className={`text-center font-bold text-lg ${feedback === 'correct' ? 'text-green-500' : 'text-red-500'}`}>
-                        {feedback === 'correct' ? '¡Correcto!' : '¡Incorrecto!'}
+                    <div className={`text-center font-black text-xl animate-bounce ${feedback === 'correct' ? 'text-green-500' : 'text-red-500'}`}>
+                        {feedback === 'correct' ? '¡Muy bien!' : '¡Oops! Incorrecto'}
                     </div>
                 )}
              </div>
         )}
-
       </div>
     </div>
   );

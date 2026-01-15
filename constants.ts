@@ -1,5 +1,6 @@
-import { GameId, ExerciseTemplate, GuidePack, NBackConfig, SequenceConfig, StroopConfig, MemoryConfig, SnapshotConfig, AudioNBackConfig, EchoSequenceConfig, StoryListenerConfig } from './types';
-import { Brain, Hash, Layers, Eye, Zap, Mic, Ear, Radio, Users, Compass, Clock, Anchor } from 'lucide-react';
+
+import { GameId, ExerciseTemplate, GuidePack, NBackConfig, SequenceConfig, StroopConfig, MemoryConfig, SnapshotConfig, AudioNBackConfig, EchoSequenceConfig, StoryListenerConfig, CasilleroPracticeConfig } from './types';
+import { Brain, Hash, Layers, Eye, Zap, Mic, Ear, Radio, Users, Compass, Clock, Anchor, BookOpen } from 'lucide-react';
 
 export const GAME_DEFINITIONS: Record<GameId, { title: string; description: string; iconName: string; science: string; color: string }> = {
   nback: {
@@ -15,6 +16,13 @@ export const GAME_DEFINITIONS: Record<GameId, { title: string; description: stri
     iconName: "Ear",
     science: "Fuerza al cerebro a mantener un flujo de audio en el 'bucle fonológico' mientras procesa nueva información entrante, mejorando la atención auditiva sostenida.",
     color: "bg-purple-500"
+  },
+  'casillero-practice': {
+    title: "Práctica de Casilleros",
+    description: "Convierte números en imágenes rápido.",
+    iconName: "BookOpen",
+    science: "Automatiza el Código Fonético de Ramón Campayo. Al reducir la carga cognitiva de la conversión, liberas recursos mentales para crear asociaciones más creativas y duraderas.",
+    color: "bg-amber-500"
   },
   sequence: {
     title: "Secuencia Visual",
@@ -123,6 +131,11 @@ export const DIFFICULTY_CONFIGS: Record<GameId, DifficultySettings> = {
     easy: { n: 1, speedMs: 3000, totalTurns: 15, multiplier: 1.2 } as AudioNBackConfig,
     medium: { n: 2, speedMs: 2500, totalTurns: 20, multiplier: 1.8 } as AudioNBackConfig,
     hard: { n: 3, speedMs: 2000, totalTurns: 25, multiplier: 3.0 } as AudioNBackConfig,
+  },
+  'casillero-practice': {
+    easy: { maxNumber: 20, rounds: 5, timePerRound: 0, multiplier: 1 } as CasilleroPracticeConfig,
+    medium: { maxNumber: 50, rounds: 10, timePerRound: 20, multiplier: 1.5 } as CasilleroPracticeConfig,
+    hard: { maxNumber: 100, rounds: 15, timePerRound: 12, multiplier: 2.5 } as CasilleroPracticeConfig,
   },
   sequence: {
     easy: { startLength: 3, displayTimeMs: 1200, multiplier: 1 } as SequenceConfig,

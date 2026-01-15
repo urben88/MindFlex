@@ -12,13 +12,14 @@ import { SnapshotGame } from './games/Snapshot';
 import { AudioNBackGame } from './games/AudioNBack';
 import { EchoSequenceGame } from './games/EchoSequence';
 import { StoryListenerGame } from './games/StoryListener';
+import { CasilleroPracticeGame } from './games/CasilleroPractice';
 import { ExerciseSession } from './components/ExerciseSession';
 import { CasilleroView } from './views/CasilleroView';
 import { DifficultySelector } from './components/DifficultySelector';
 import { GameSummary } from './components/GameSummary';
 import { ActiveGameLayout } from './components/ActiveGameLayout';
 import { GAME_DEFINITIONS, EXERCISE_TEMPLATES, DIFFICULTY_CONFIGS } from './constants';
-import { GameId, DifficultyLevel, AudioNBackConfig, EchoSequenceConfig, MemoryConfig, SnapshotConfig, StoryListenerConfig, GameConfig } from './types';
+import { GameId, DifficultyLevel, AudioNBackConfig, EchoSequenceConfig, MemoryConfig, SnapshotConfig, StoryListenerConfig, GameConfig, CasilleroPracticeConfig } from './types';
 import { ArrowRight, Filter, SortAsc, Info, Volume2, Moon, Sun, Trash2 } from 'lucide-react';
 import { GameIcon } from './components/GameIcon';
 
@@ -275,52 +276,46 @@ const StatsView: React.FC = () => {
 }
 
 const ActiveGameWrapper: React.FC = () => {
-    const { activeGameId, navigate } = useStore();
-    const [difficulty, setDifficulty] = useState<DifficultyLevel | null>(null);
-    const [customConfig, setCustomConfig] = useState<GameConfig | null>(null);
-
-    useEffect(() => {
-        setDifficulty(null);
-        setCustomConfig(null);
-    }, [activeGameId]);
+    const { activeGameId, activeDifficulty, activeCustomConfig, setDifficulty, navigate } = useStore();
 
     if (!activeGameId) return null;
 
-    if (!difficulty) {
+    // Si no hay dificultad seleccionada, mostramos el selector
+    if (!activeDifficulty) {
         return (
             <DifficultySelector 
                 gameTitle={GAME_DEFINITIONS[activeGameId].title}
                 gameId={activeGameId}
                 onSelect={(diff, config) => {
-                    setDifficulty(diff);
-                    if (config) setCustomConfig(config);
+                    setDifficulty(diff, config);
                 }}
                 onBack={() => navigate('games')}
             />
         );
     }
 
-    // Use custom config if available, otherwise look up in pre-defined configs
-    const config = difficulty === 'custom' && customConfig 
-        ? customConfig 
-        : DIFFICULTY_CONFIGS[activeGameId][difficulty as 'easy' | 'medium' | 'hard'];
+    // Si ya hay dificultad (por selección o por "Repetir"), preparamos la config y el juego
+    const config = activeDifficulty === 'custom' && activeCustomConfig 
+        ? activeCustomConfig 
+        : DIFFICULTY_CONFIGS[activeGameId][activeDifficulty as 'easy' | 'medium' | 'hard'];
     
     const renderGame = () => {
         switch (activeGameId) {
-            case 'nback': return <NBackGame config={config as any} difficulty={difficulty} />;
-            case 'audio-nback': return <AudioNBackGame config={config as AudioNBackConfig} difficulty={difficulty} />;
-            case 'stroop': return <StroopGame config={config as any} difficulty={difficulty} />;
-            case 'sequence': return <SequenceGame config={config as any} difficulty={difficulty} />;
-            case 'echo-sequence': return <EchoSequenceGame config={config as EchoSequenceConfig} difficulty={difficulty} />;
-            case 'memory': return <MemoryMatchGame config={config as MemoryConfig} difficulty={difficulty} />;
-            case 'snapshot': return <SnapshotGame config={config as SnapshotConfig} difficulty={difficulty} />;
-            case 'story-listener': return <StoryListenerGame config={config as StoryListenerConfig} difficulty={difficulty} />;
-            default: return <PlaceholderGame name={GAME_DEFINITIONS[activeGameId].title} difficulty={difficulty} />;
+            case 'nback': return <NBackGame config={config as any} difficulty={activeDifficulty} />;
+            case 'audio-nback': return <AudioNBackGame config={config as AudioNBackConfig} difficulty={activeDifficulty} />;
+            case 'stroop': return <StroopGame config={config as any} difficulty={activeDifficulty} />;
+            case 'sequence': return <SequenceGame config={config as any} difficulty={activeDifficulty} />;
+            case 'echo-sequence': return <EchoSequenceGame config={config as EchoSequenceConfig} difficulty={activeDifficulty} />;
+            case 'memory': return <MemoryMatchGame config={config as MemoryConfig} difficulty={activeDifficulty} />;
+            case 'snapshot': return <SnapshotGame config={config as SnapshotConfig} difficulty={activeDifficulty} />;
+            case 'story-listener': return <StoryListenerGame config={config as StoryListenerConfig} difficulty={activeDifficulty} />;
+            case 'casillero-practice': return <CasilleroPracticeGame config={config as CasilleroPracticeConfig} difficulty={activeDifficulty} />;
+            default: return <PlaceholderGame name={GAME_DEFINITIONS[activeGameId].title} difficulty={activeDifficulty} />;
         }
     };
 
     return (
-        <ActiveGameLayout difficulty={difficulty}>
+        <ActiveGameLayout difficulty={activeDifficulty}>
             {renderGame()}
         </ActiveGameLayout>
     );

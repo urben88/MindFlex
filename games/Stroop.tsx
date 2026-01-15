@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { GameResult, StroopConfig, DifficultyLevel } from '../types';
@@ -8,7 +9,7 @@ interface Props {
 }
 
 export const StroopGame: React.FC<Props> = ({ config, difficulty }) => {
-  const { completeGame } = useStore();
+  const { completeGame, triggerSuccess } = useStore();
   const { timeLimit, conflictProbability, multiplier } = config;
 
   const [score, setScore] = useState(0);
@@ -25,7 +26,6 @@ export const StroopGame: React.FC<Props> = ({ config, difficulty }) => {
   const [inkColor, setInkColor] = useState(colors[1]);
   const [hits, setHits] = useState(0);
   
-  // Refs for closure access inside interval
   const scoreRef = useRef(0);
   const hitsRef = useRef(0);
 
@@ -67,6 +67,7 @@ export const StroopGame: React.FC<Props> = ({ config, difficulty }) => {
           hitsRef.current = h + 1;
           return h + 1;
       });
+      triggerSuccess();
     } else {
       setScore(s => {
           const newS = Math.max(0, s - Math.round(points / 2));
@@ -78,7 +79,6 @@ export const StroopGame: React.FC<Props> = ({ config, difficulty }) => {
   };
 
   const finish = () => {
-    // Use refs to get latest values inside interval callback
     const finalScore = scoreRef.current;
     const finalHits = hitsRef.current;
     
@@ -97,13 +97,13 @@ export const StroopGame: React.FC<Props> = ({ config, difficulty }) => {
   return (
     <div className="flex flex-col items-center h-full py-6">
       <div className="flex justify-between w-full px-6 mb-8">
-        <span className="font-mono text-xl">{timeLeft}s</span>
-        <span className="font-bold text-xl">{score} pts</span>
+        <span className="font-mono text-xl dark:text-indigo-400">{timeLeft}s</span>
+        <span className="font-bold text-xl dark:text-white">{score} pts</span>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center">
-        <p className="text-slate-400 mb-4">Selecciona el color de la TINTA</p>
-        <div className={`text-6xl font-black mb-12 ${inkColor.class}`}>
+        <p className="text-slate-400 mb-4 text-xs font-bold uppercase tracking-widest">Color de la TINTA</p>
+        <div className={`text-6xl font-black mb-12 drop-shadow-sm ${inkColor.class}`}>
           {currentWord.name}
         </div>
       </div>
@@ -113,7 +113,7 @@ export const StroopGame: React.FC<Props> = ({ config, difficulty }) => {
           <button
             key={c.value}
             onClick={() => handleChoice(c.value)}
-            className="py-6 rounded-xl bg-white border-2 border-slate-200 shadow-sm font-bold text-slate-700 hover:bg-slate-50 active:scale-95 transition-all"
+            className="py-6 rounded-2xl bg-white dark:bg-[#0a0a0a] border-2 border-slate-200 dark:border-neutral-800 shadow-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-neutral-900 active:scale-95 transition-all"
           >
             {c.name}
           </button>

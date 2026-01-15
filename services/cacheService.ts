@@ -1,3 +1,4 @@
+
 import { UserCache, GameResult, GameId } from '../types';
 
 const STORAGE_KEY = 'mindflex_v1_cache';
@@ -14,6 +15,8 @@ const DEFAULT_CACHE: UserCache = {
     'audio-nback': { plays: 0, highScore: 0, avgAccuracy: 0, lastPlayed: 0 },
     'echo-sequence': { plays: 0, highScore: 0, avgAccuracy: 0, lastPlayed: 0 },
     'story-listener': { plays: 0, highScore: 0, avgAccuracy: 0, lastPlayed: 0 },
+    // Fix: Added missing 'casillero-practice' property to match GameId definition
+    'casillero-practice': { plays: 0, highScore: 0, avgAccuracy: 0, lastPlayed: 0 },
   },
   history: [],
   settings: {

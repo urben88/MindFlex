@@ -13,7 +13,7 @@ interface Props {
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'H', 'J', 'K', 'L', 'M', 'O', 'P', 'R', 'S', 'T'];
 
 export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
-  const { completeGame } = useStore();
+  const { completeGame, triggerSuccess } = useStore();
   const { n: N, totalTurns: TOTAL_TURNS, speedMs: SPEED_MS, multiplier } = config;
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -79,7 +79,7 @@ export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
   };
 
   const handleMatch = () => {
-    if (currentIndex < N) return;
+    if (currentIndex < N || feedback !== null) return;
     
     const isMatch = sequence[currentIndex] === sequence[currentIndex - N];
     const points = Math.round(150 * multiplier);
@@ -88,6 +88,7 @@ export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
       setScore(s => s + points);
       setHits(h => h + 1);
       setFeedback('correct');
+      triggerSuccess();
     } else {
       setScore(s => Math.max(0, s - Math.round(points / 2)));
       setMisses(m => m + 1);
@@ -130,18 +131,7 @@ export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
         <div className="w-48 h-48 rounded-full bg-slate-100 dark:bg-neutral-900 flex items-center justify-center relative mb-8">
              <div className={`absolute inset-0 rounded-full border-4 border-indigo-100 dark:border-indigo-900/30 ${currentIndex >= 0 ? 'animate-ping opacity-20' : ''}`}></div>
              <Ear size={64} className="text-slate-300 dark:text-neutral-700" />
-             {feedback === 'correct' && (
-               <div className="absolute inset-0 flex items-center justify-center">
-                 <div className="text-4xl">✨</div>
-               </div>
-             )}
-             {feedback === 'wrong' && (
-               <div className="absolute inset-0 flex items-center justify-center">
-                 <div className="text-4xl">❌</div>
-               </div>
-             )}
         </div>
-
         <div className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Escuchando...</div>
       </div>
 
@@ -152,9 +142,6 @@ export const AudioNBackGame: React.FC<Props> = ({ config, difficulty }) => {
         >
           ¡COINCIDE!
         </button>
-        <p className="text-center mt-4 text-slate-400 dark:text-slate-500 text-xs">
-          Match: Letra actual vs. Letra hace {N} pasos
-        </p>
       </div>
     </div>
   );

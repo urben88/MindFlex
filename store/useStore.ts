@@ -1,5 +1,6 @@
+
 import { create } from 'zustand';
-import { UserCache, ViewState, GameId, GameResult, ExerciseTemplate, GuidePack } from '../types';
+import { UserCache, ViewState, GameId, GameResult, ExerciseTemplate, GuidePack, DifficultyLevel, GameConfig } from '../types';
 import { cacheService } from '../services/cacheService';
 import { recommenderService } from '../services/recommenderService';
 import { GAME_DEFINITIONS, EXERCISE_TEMPLATES } from '../constants';
@@ -8,14 +9,18 @@ interface State {
   view: ViewState;
   cache: UserCache;
   activeGameId: GameId | null;
+  activeDifficulty: DifficultyLevel | null;
+  activeCustomConfig: GameConfig | null;
   activeExercise: ExerciseTemplate | null;
   activeGuide: GuidePack | null;
   lastResult: GameResult | null;
+  isSuccessActive: boolean;
   
   // Actions
   init: () => void;
   navigate: (view: ViewState) => void;
   startGame: (id: GameId) => void;
+  setDifficulty: (level: DifficultyLevel, config?: GameConfig) => void;
   exitGame: () => void;
   startExercise: (ex: ExerciseTemplate) => void;
   completeGame: (result: GameResult) => void;
@@ -24,15 +29,19 @@ interface State {
   replayLastGame: () => void;
   openGuide: (guide: GuidePack) => void;
   toggleDarkMode: () => void;
+  triggerSuccess: () => void;
 }
 
 export const useStore = create<State>((set, get) => ({
   view: 'home',
   cache: cacheService.load(),
   activeGameId: null,
+  activeDifficulty: null,
+  activeCustomConfig: null,
   activeExercise: null,
   activeGuide: null,
   lastResult: null,
+  isSuccessActive: false,
 
   init: () => {
     const loaded = cacheService.load();
@@ -45,9 +54,20 @@ export const useStore = create<State>((set, get) => ({
 
   navigate: (view) => set({ view, activeGameId: null, activeExercise: null, activeGuide: null }),
 
-  startGame: (id) => set({ view: 'active_game', activeGameId: id, lastResult: null }),
+  startGame: (id) => set({ 
+    view: 'active_game', 
+    activeGameId: id, 
+    activeDifficulty: null, 
+    activeCustomConfig: null,
+    lastResult: null 
+  }),
 
-  exitGame: () => set({ view: 'games', activeGameId: null, lastResult: null }),
+  setDifficulty: (level, config) => set({
+    activeDifficulty: level,
+    activeCustomConfig: config || null
+  }),
+
+  exitGame: () => set({ view: 'games', activeGameId: null, activeDifficulty: null, activeCustomConfig: null, lastResult: null }),
 
   startExercise: (ex) => set({ view: 'active_exercise', activeExercise: ex }),
 
@@ -57,7 +77,6 @@ export const useStore = create<State>((set, get) => ({
     const state = get();
     const currentStats = state.cache.gameStats[result.gameId];
     
-    // Calculate new stats
     const newPlays = currentStats.plays + 1;
     const newAvg = ((currentStats.avgAccuracy * currentStats.plays) + result.accuracy) / newPlays;
     const newHigh = Math.max(currentStats.highScore, result.score);
@@ -81,8 +100,7 @@ export const useStore = create<State>((set, get) => ({
     };
 
     cacheService.save(newCache);
-    
-    // Instead of going to 'games', go to summary
+    // Note: We DON'T clear activeDifficulty here so it can be re-used in replay
     set({ cache: newCache, view: 'game_summary', lastResult: result, activeGameId: null });
   },
 
@@ -100,6 +118,7 @@ export const useStore = create<State>((set, get) => ({
   replayLastGame: () => {
     const { lastResult } = get();
     if (lastResult) {
+      // Set the active game ID again, keeping the current activeDifficulty/activeCustomConfig
       set({ view: 'active_game', activeGameId: lastResult.gameId, lastResult: null });
     }
   },
@@ -115,5 +134,10 @@ export const useStore = create<State>((set, get) => ({
     };
     cacheService.save(newCache);
     set({ cache: newCache });
+  },
+
+  triggerSuccess: () => {
+    set({ isSuccessActive: true });
+    setTimeout(() => set({ isSuccessActive: false }), 400);
   }
 }));
